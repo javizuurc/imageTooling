@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.venv.bak/
+
+# Local secrets / keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Caches / logs
+.pytest_cache/
+.ruff_cache/
+*.log
+
+# Editors
+.vscode/
+.idea/
+
+# Local agent config (contains machine-specific mounts)
+opencode.json

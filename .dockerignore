@@ -1,0 +1,7 @@
+# Only package/runtime inputs are sent to the Docker daemon.
+**
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!src/**

@@ -1,0 +1,41 @@
+[project]
+name = "imagetooling"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "javizuurc", email = "javiercruz.business@gmail.com" }
+]
+requires-python = ">=3.13"
+license = { text = "PolyForm-Noncommercial-1.0.0" }
+dependencies = [
+    "fastmcp>=4.0.2",
+    "pillow>=12.3.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+ocr = ["pytesseract>=0.3.10"]
+
+[tool.ruff]
+line-length = 79
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.16.6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/image_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
