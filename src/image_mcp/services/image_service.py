@@ -1,7 +1,7 @@
 import colorsys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageOps
+from PIL import Image, ImageChops, ImageColor, ImageDraw, ImageFilter, ImageOps
 
 from image_mcp.config import DEFAULT_THUMB_SIZES
 from image_mcp.schemas.image import (
@@ -10,6 +10,7 @@ from image_mcp.schemas.image import (
     CropResult,
     FilterResult,
     PaletteResult,
+    RemoveBackgroundResult,
     ResizeResult,
     RotateResult,
     ThumbnailResult,
@@ -229,3 +230,62 @@ class ImageService:
                     }
                 )
             return {"colors": colors}
+
+    def remove_background(
+        self,
+        tolerance: int = 30,
+        background: str = "auto",
+        replacement: str = "transparent",
+    ) -> RemoveBackgroundResult:
+        t = max(0, min(255, int(tolerance)))
+        dest = self.src.with_name(f"{self.src.stem}_nobg.png")
+
+        with Image.open(self.src) as im:
+            rgba = im.convert("RGBA")
+            w, h = rgba.size
+
+            if background.strip().lower() != "auto":
+                try:
+                    bg_rgb = ImageColor.getrgb(background.strip())
+                except ValueError as e:
+                    raise ValueError(
+                        f"background no válido: {background!r} "
+                        "(usa 'auto', hex '#RRGGBB' o nombre como "
+                        "'white')"
+                    ) from e
+                solid = Image.new("RGB", (w, h), bg_rgb[:3])
+                diff = ImageChops.difference(
+                    rgba.convert("RGB"), solid
+                ).convert("L")
+                mask = diff.point(
+                    lambda v: 0 if v <= t else 255, mode="L"
+                )
+                orig_a = rgba.getchannel("A")
+                rgba.putalpha(ImageChops.darker(orig_a, mask))
+            else:
+                for seed in (
+                    (0, 0),
+                    (w - 1, 0),
+                    (0, h - 1),
+                    (w - 1, h - 1),
+                ):
+                    ImageDraw.floodfill(
+                        rgba, seed, (0, 0, 0, 0), thresh=t
+                    )
+            rep = replacement.strip().lower()
+            if rep not in ("transparent", "none", "alpha", ""):
+                try:
+                    rep_parsed = ImageColor.getrgb(replacement.strip())
+                except ValueError as e:
+                    raise ValueError(
+                        f"replacement no válido: {replacement!r} "
+                        "(usa 'transparent', hex '#RRGGBB' o nombre)"
+                    ) from e
+                if len(rep_parsed) == 4:
+                    bg_fill = rep_parsed
+                else:
+                    bg_fill = (*rep_parsed[:3], 255)
+                base = Image.new("RGBA", (w, h), bg_fill)
+                rgba = Image.alpha_composite(base, rgba)
+            save_image(rgba, dest)
+        return {"output_path": str(dest)}

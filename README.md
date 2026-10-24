@@ -24,7 +24,7 @@ service. The container name is `ImageToolingMCP` as requested.
 
 `image_path` is a path in the shared filesystem (e.g. `/workspace/img/photo.jpg`). Outputs are written next to the source and returned as `output_path`. Extensions are dotless (`png`). OCR needs tesseract installed, otherwise it returns `OCR_MISSING_ERROR`.
 
-## Tools (13)
+## Tools (14)
 
 | Tool | What it does |
 | ---- | ------------ |
@@ -41,6 +41,7 @@ service. The container name is `ImageToolingMCP` as requested.
 | `add_watermark` | Text or image overlay (`watermark_type`, `content`, `position`, `opacity`) |
 | `extract_palette` | Dominant colors (`num_colors=5`, `format=hex`) |
 | `ocr_extract_text` | Extract text (`language=auto`, requires tesseract) |
+| `remove_background` | Remove plain background, no AI model (`tolerance=30`, `background=auto` or color to remove, `replacement=transparent` or color; invisible by default, never forced white) |
 
 **Resources:** `config://formats` (Pillow-readable extensions in this deploy).
 **Prompts:** `describe_image(image_path)`, `thumbnail_plan(image_path, sizes)`.

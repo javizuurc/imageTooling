@@ -7,6 +7,7 @@ from image_mcp.schemas.image import (
     CropResult,
     FilterResult,
     PaletteResult,
+    RemoveBackgroundResult,
     ResizeResult,
     RotateResult,
     ThumbnailResult,
@@ -128,3 +129,21 @@ def register(mcp: FastMCP):
         """Extract dominant colors from the image."""
         await log_info(ctx, f"palette {image_path} n={num_colors} {format}")
         return ImageService(image_path).extract_palette(num_colors, format)
+
+    @mcp.tool(title="Remove background", tags={"image", "effect"})
+    async def remove_background(
+        ctx: Context,
+        image_path: str,
+        tolerance: int = 30,
+        background: str = "auto",
+        replacement: str = "transparent",
+    ) -> RemoveBackgroundResult:
+        """Remove a plain background (transparent by default, or color)."""
+        await log_info(
+            ctx,
+            f"nobg {image_path} tolerance={tolerance} "
+            f"bg={background} replacement={replacement}",
+        )
+        return ImageService(image_path).remove_background(
+            tolerance, background, replacement
+        )

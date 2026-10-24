@@ -54,3 +54,7 @@ class ThumbnailResult(TypedDict):
 
 class FilterResult(TypedDict):
     output_path: str
+
+
+class RemoveBackgroundResult(TypedDict):
+    output_path: str
